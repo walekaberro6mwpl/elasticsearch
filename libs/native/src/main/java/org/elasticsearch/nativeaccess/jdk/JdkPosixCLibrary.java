@@ -63,6 +63,10 @@ class JdkPosixCLibrary implements PosixCLibrary {
         "ftruncate",
         FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_LONG)
     );
+    private static final MethodHandle fadvise$mh = downcallHandle(
+        "posix_fadvise",
+        FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_LONG, JAVA_LONG, JAVA_INT)
+    );
     private static final MethodHandle open$mh = downcallHandle(
         "open",
         FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT),
@@ -201,6 +205,16 @@ class JdkPosixCLibrary implements PosixCLibrary {
             throw new AssertionError(t);
         }
     }
+
+    @Override
+    public int fadvise(int fd, long offset, long size, int advice) {
+        try {
+            return -1;//(int) fadvise$mh.invokeExact(errnoState, fd, offset, size, advice);
+        } catch (Throwable t) {
+            throw new AssertionError(t);
+        }
+    }
+
 
     @Override
     public int open(String pathname, int flags) {

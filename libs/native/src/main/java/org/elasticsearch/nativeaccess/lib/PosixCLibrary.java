@@ -81,6 +81,8 @@ public non-sealed interface PosixCLibrary extends NativeLibrary {
 
     int ftruncate(int fd, long length);
 
+    int fadvise(int fd, long offset, long size, int advice);
+
     interface FStore {
         void set_flags(int flags); /* IN: flags word */
 

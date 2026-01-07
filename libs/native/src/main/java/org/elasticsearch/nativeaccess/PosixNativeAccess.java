@@ -64,6 +64,23 @@ abstract class PosixNativeAccess extends AbstractNativeAccess {
         }
     }
 
+    @Override
+    public int fadvise(int fd, long offset, long length, int advice) {
+        return libc.fadvise(fd, offset, length, advice);
+    }
+
+    @Override
+    public int open(String pathname, int flags) {
+        return libc.open(pathname, flags);
+    }
+
+    @Override
+    public int close(int fd) {
+        return libc.close(fd);
+    }
+
+
+
     static VectorSimilarityFunctions vectorSimilarityFunctionsOrNull(NativeLibraryProvider libraryProvider) {
         if (isNativeVectorLibSupported()) {
             var lib = libraryProvider.getLibrary(VectorLibrary.class).getVectorSimilarityFunctions();

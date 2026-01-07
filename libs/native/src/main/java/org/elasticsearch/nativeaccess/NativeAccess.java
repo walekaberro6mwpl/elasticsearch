@@ -103,6 +103,18 @@ public interface NativeAccess {
      */
     CloseableByteBuffer newConfinedBuffer(int len);
 
+    default int fadvise(int fd, long offset, long length, int advice) {
+        return 0;
+    }
+
+    default int open(String pathname, int flags) {
+        return -1;
+    }
+
+    default int close(int fd) {
+        return -1;
+    }
+
     /**
      * Possible stats for execution filtering.
      */
