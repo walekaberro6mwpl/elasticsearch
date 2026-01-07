@@ -36,17 +36,37 @@ public class PrefetchNIOFSDirectory extends NIOFSDirectory {
     public IndexInput openInput(String name, IOContext context) throws IOException {
         int fd = NATIVE_ACCESS.open(name, 0);
         var in = super.openInput(name, context);
-        return new FilterIndexInput("", in) {
-            @Override
-            public void prefetch(long offset, long length) throws IOException {
-                NATIVE_ACCESS.fadvise(fd, offset, length, POSIX_FADV_WILLNEED);
-            }
+        return new PrefetchIndexInput("", fd, in);
+    }
 
-            @Override
-            public void close() throws IOException {
-                super.close();
-                NATIVE_ACCESS.close(fd);
-            }
-        };
+    static class PrefetchIndexInput extends FilterIndexInput {
+        final int fd;
+
+        /**
+         * Creates a FilterIndexInput with a resource description and wrapped delegate IndexInput
+         *
+         * @param resourceDescription
+         * @param in
+         */
+        PrefetchIndexInput(String resourceDescription, int fd, IndexInput in) {
+            super(resourceDescription, in);
+            this.fd = fd;
+        }
+
+        @Override
+        public void prefetch(long offset, long length) throws IOException {
+            NATIVE_ACCESS.fadvise(fd, offset, length, POSIX_FADV_WILLNEED);
+        }
+
+        @Override
+        public void close() throws IOException {
+            super.close();
+            NATIVE_ACCESS.close(fd);
+        }
+
+        @Override
+        public IndexInput clone() {
+            return new PrefetchIndexInput("clone", fd, in.clone());
+        }
     }
 }
